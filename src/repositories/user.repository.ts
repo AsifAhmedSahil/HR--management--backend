@@ -10,13 +10,18 @@ export class UserRepository {
     this.db = Database.getConnection();
   }
 
-  public get queryBuilder(): Knex.QueryBuilder<IUser> {
-    return this.db<IUser>(this.tableName);
+  public async findById(id: number): Promise<IUser | undefined> {
+    return this.db<IUser>(this.tableName).where({ id }).first();
   }
 
-  // TODO: Implement findById
-  // TODO: Implement findByEmail
-  // TODO: Implement create
-  // TODO: Implement update
-  // TODO: Implement delete
+  public async findByEmail(email: string): Promise<IUser | undefined> {
+    return this.db<IUser>(this.tableName).where({ email }).first();
+  }
+
+  public async create(data: Partial<IUser>): Promise<IUser> {
+    const [user] = await this.db<IUser>(this.tableName)
+      .insert(data)
+      .returning('*');
+    return user;
+  }
 }

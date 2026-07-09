@@ -1,6 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { AuthService } from '../services';
+import { ApiResponse } from '../utils';
+import { HttpStatus } from '../constants';
 
 export class AuthController {
   private readonly authService: AuthService;
@@ -9,21 +11,21 @@ export class AuthController {
     this.authService = new AuthService();
   }
 
-  // TODO: Implement register
-  public register = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public register = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const { name, email, password } = req.body;
+    const user = await this.authService.register({ name, email, password });
+    ApiResponse.success(res, user, 'Registration successful', HttpStatus.CREATED);
   };
 
-  // TODO: Implement login
-  public login = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public login = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const { email, password } = req.body;
+    const result = await this.authService.login({ email, password });
+    ApiResponse.success(res, result, 'Login successful');
   };
 
-  // TODO: Implement getProfile
-  public getProfile = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public getProfile = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const userId = req.user!.id;
+    const user = await this.authService.getProfile(userId);
+    ApiResponse.success(res, user, 'Profile retrieved');
   };
 }
