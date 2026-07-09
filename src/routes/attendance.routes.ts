@@ -10,10 +10,22 @@ export class AttendanceRoutes {
 
   static {
     AttendanceRoutes.router.post(
-      '/check-in',
+      '/',
       AuthMiddleware.authenticate,
-      ValidationMiddleware.validate(AttendanceValidator.checkIn),
-      AsyncHandler.wrap(AttendanceRoutes.controller.checkIn),
+      ValidationMiddleware.validate(AttendanceValidator.create),
+      AsyncHandler.wrap(AttendanceRoutes.controller.create),
+    );
+
+    AttendanceRoutes.router.get(
+      '/',
+      AuthMiddleware.authenticate,
+      AsyncHandler.wrap(AttendanceRoutes.controller.getAll),
+    );
+
+    AttendanceRoutes.router.get(
+      '/:id',
+      AuthMiddleware.authenticate,
+      AsyncHandler.wrap(AttendanceRoutes.controller.getById),
     );
 
     AttendanceRoutes.router.put(
@@ -21,18 +33,6 @@ export class AttendanceRoutes {
       AuthMiddleware.authenticate,
       ValidationMiddleware.validate(AttendanceValidator.update),
       AsyncHandler.wrap(AttendanceRoutes.controller.update),
-    );
-
-    AttendanceRoutes.router.get(
-      '/employee/:employeeId',
-      AuthMiddleware.authenticate,
-      AsyncHandler.wrap(AttendanceRoutes.controller.getByEmployeeId),
-    );
-
-    AttendanceRoutes.router.get(
-      '/reports/monthly',
-      AuthMiddleware.authenticate,
-      AsyncHandler.wrap(AttendanceRoutes.controller.getMonthlyReport),
     );
 
     AttendanceRoutes.router.delete(
