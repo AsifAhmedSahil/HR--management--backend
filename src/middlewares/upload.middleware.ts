@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import crypto from 'crypto';
+import { RequestHandler } from 'express';
 import { UploadConfig } from '../config';
 
 const storage = multer.diskStorage({
@@ -27,7 +28,7 @@ const fileFilter = (
 };
 
 export class UploadMiddleware {
-  public static single(fieldName: string): multer.Multer {
+  public static single(fieldName: string): RequestHandler {
     return multer({
       storage,
       fileFilter,

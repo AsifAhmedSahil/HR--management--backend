@@ -23,7 +23,7 @@ export class AuthRoutes {
     );
 
     AuthRoutes.router.get(
-      '/profile',
+      '/me',
       AuthMiddleware.authenticate,
       AsyncHandler.wrap(AuthRoutes.controller.getProfile),
     );

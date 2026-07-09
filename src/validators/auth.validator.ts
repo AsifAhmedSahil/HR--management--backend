@@ -2,12 +2,12 @@ import Joi from 'joi';
 
 export class AuthValidator {
   public static register = Joi.object({
-    name: Joi.string().min(2).max(100).required().messages({
+    name: Joi.string().trim().min(2).max(100).required().messages({
       'string.empty': 'Name is required',
       'string.min': 'Name must be at least 2 characters',
       'string.max': 'Name must not exceed 100 characters',
     }),
-    email: Joi.string().email().required().messages({
+    email: Joi.string().trim().lowercase().email().required().messages({
       'string.empty': 'Email is required',
       'string.email': 'Please provide a valid email',
     }),
@@ -19,7 +19,7 @@ export class AuthValidator {
   });
 
   public static login = Joi.object({
-    email: Joi.string().email().required().messages({
+    email: Joi.string().trim().lowercase().email().required().messages({
       'string.empty': 'Email is required',
       'string.email': 'Please provide a valid email',
     }),
