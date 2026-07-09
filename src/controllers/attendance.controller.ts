@@ -1,6 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { AttendanceService } from '../services';
+import { ApiResponse } from '../utils';
+import { HttpStatus } from '../constants';
 
 export class AttendanceController {
   private readonly attendanceService: AttendanceService;
@@ -9,33 +11,51 @@ export class AttendanceController {
     this.attendanceService = new AttendanceService();
   }
 
-  // TODO: Implement checkIn
-  public checkIn = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public create = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const { record, created } = await this.attendanceService.createOrUpdateAttendance(req.body);
+
+    if (created) {
+      ApiResponse.success(res, record, 'Attendance created', HttpStatus.CREATED);
+    } else {
+      ApiResponse.success(res, record, 'Attendance updated successfully');
+    }
   };
 
-  // TODO: Implement update
-  public update = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public getAll = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
+    const employee_id = req.query.employee_id ? parseInt(req.query.employee_id as string, 10) : undefined;
+    const date = req.query.date as string | undefined;
+    const from = req.query.from as string | undefined;
+    const to = req.query.to as string | undefined;
+
+    const result = await this.attendanceService.getAttendance({
+      page,
+      limit,
+      employee_id,
+      date,
+      from,
+      to,
+    });
+
+    ApiResponse.success(res, result, 'Attendance records retrieved');
   };
 
-  // TODO: Implement getByEmployeeId
-  public getByEmployeeId = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public getById = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+    const record = await this.attendanceService.getAttendanceById(id);
+    ApiResponse.success(res, record, 'Attendance record retrieved');
   };
 
-  // TODO: Implement getMonthlyReport
-  public getMonthlyReport = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public update = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+    const record = await this.attendanceService.updateAttendance(id, req.body);
+    ApiResponse.success(res, record, 'Attendance updated');
   };
 
-  // TODO: Implement delete
-  public delete = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public delete = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+    await this.attendanceService.deleteAttendance(id);
+    ApiResponse.success(res, null, 'Attendance deleted');
   };
 }
