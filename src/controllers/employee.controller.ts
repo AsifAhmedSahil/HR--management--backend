@@ -1,6 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { EmployeeService } from '../services';
+import { ApiResponse } from '../utils';
+import { HttpStatus } from '../constants';
 
 export class EmployeeController {
   private readonly employeeService: EmployeeService;
@@ -9,33 +11,44 @@ export class EmployeeController {
     this.employeeService = new EmployeeService();
   }
 
-  // TODO: Implement create
-  public create = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public create = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const employee = await this.employeeService.create(req.body, req.file);
+    ApiResponse.success(res, employee, 'Employee created', HttpStatus.CREATED);
   };
 
-  // TODO: Implement getAll
-  public getAll = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public getAll = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
+    const search = req.query.search as string | undefined;
+    const sortBy = req.query.sortBy as string | undefined;
+    const sortOrder = (req.query.sortOrder as string) === 'asc' ? 'asc' : 'desc';
+
+    const result = await this.employeeService.getAll({
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+    });
+
+    ApiResponse.success(res, result, 'Employees retrieved');
   };
 
-  // TODO: Implement getById
-  public getById = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public getById = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+    const employee = await this.employeeService.getById(id);
+    ApiResponse.success(res, employee, 'Employee retrieved');
   };
 
-  // TODO: Implement update
-  public update = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public update = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+    const employee = await this.employeeService.update(id, req.body, req.file);
+    ApiResponse.success(res, employee, 'Employee updated');
   };
 
-  // TODO: Implement delete
-  public delete = async (_req: AuthenticatedRequest, _res: Response, _next: NextFunction): Promise<void> => {
-    // Business logic will be implemented in the next phase
-    _next();
+  public delete = async (req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+    await this.employeeService.delete(id);
+    ApiResponse.success(res, null, 'Employee deleted');
   };
 }
